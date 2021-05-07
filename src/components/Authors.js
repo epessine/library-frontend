@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { ALL_AUTHORS, UPDATE_AUTHOR } from '../queries';
 import useField from '../hooks/useField';
@@ -8,7 +8,7 @@ const Authors = (props) => {
     refetchQueries: [{ query: ALL_AUTHORS }]
   });
   const result = useQuery(ALL_AUTHORS);
-  const name = useField('text');
+  const [name, setName] = useState('');
   const born = useField('text');
   if (!props.show) {
     return null;
@@ -19,11 +19,11 @@ const Authors = (props) => {
     event.preventDefault();
     updateAuthor({
       variables: {
-        name: name.fields.value,
+        name,
         born: Number(born.fields.value)
       }
     });
-    name.reset();
+    setName('');
     born.reset();
   };
 
@@ -38,7 +38,7 @@ const Authors = (props) => {
             <th>books</th>
           </tr>
           {authors.map((author) => (
-            <tr key={author.name}>
+            <tr key={author.id}>
               <td>{author.name}</td>
               <td>{author.born}</td>
               <td>{author.bookCount}</td>
@@ -50,7 +50,15 @@ const Authors = (props) => {
         <h3>set birthyear</h3>
         <div>
           name
-          <input {...name.fields}/>
+          <select 
+            value={name} 
+            onChange={({ target }) => setName(target.value)}
+          >
+            <option value=""></option>
+            {authors.map((author) => (
+              <option key={author.id} value={author.name}>{author.name}</option>
+            ))}
+          </select>
         </div>
         <div>
           born
