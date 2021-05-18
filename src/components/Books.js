@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
-import { useQuery } from '@apollo/client';
+import React, { useState, useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client';
 import { ALL_BOOKS } from '../queries';
 
 const Books = (props) => {
   const [ filter, setFilter ] = useState('');
-  const result = useQuery(ALL_BOOKS);
+  const [ getAllBooks, result] = useLazyQuery(ALL_BOOKS, {
+    fetchPolicy: 'no-cache'
+  });
+
+  useEffect(() => {
+    getAllBooks();
+  },[filter]); // eslint-disable-line
+
   let books = [];
   if (!props.show) {
     return null;

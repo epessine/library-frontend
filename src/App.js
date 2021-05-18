@@ -4,6 +4,7 @@ import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
 import LoginForm from './components/LoginForm';
+import Favorite from './components/Favorite';
 
 const App = () => {
   const [page, setPage] = useState('authors');
@@ -19,6 +20,7 @@ const App = () => {
     setToken(null);
     localStorage.clear();
     client.resetStore();
+    setPage('login');
   };
 
   return (
@@ -28,15 +30,23 @@ const App = () => {
         <button onClick={() => setPage('books')}>books</button>
         { !token && <button onClick={() => setPage('login')}>login</button>}
         { token && <button onClick={() => setPage('add')}>add book</button>}
+        { token && <button onClick={() => setPage('favorite')}>recommend</button>}
         { token && <button onClick={logout}>logout</button>}
       </div>
-      <Authors show={page === 'authors'} />
+      <Authors 
+        token={token}
+        show={page === 'authors'}
+      />
       <Books show={page === 'books'} />
       <NewBook show={page === 'add'} />
       <LoginForm 
         setToken={setToken}
         setPage={setPage}
         show={page === 'login'}
+      />
+      <Favorite
+        token={token}
+        show={page === 'favorite'}
       />
     </div>
   );
