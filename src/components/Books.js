@@ -1,18 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { ALL_BOOKS } from '../queries';
 
 const Books = (props) => {
+  const [ filter, setFilter ] = useState('');
   const result = useQuery(ALL_BOOKS);
+  let books = [];
   if (!props.show) {
     return null;
   }
   if (result.loading) return (<p>loading...</p>);
-  const books = result.data.allBooks;
+  const genres = result.data.allBooks.reduce((res, book) => {
+    book.genres.forEach(genre => res.push(genre));
+    return [ ...new Set(res) ];
+  }, []);
+  if (filter) {
+    books = result.data.allBooks.filter((book) => 
+      book.genres.includes(filter)
+    );
+  } else {
+    books = result.data.allBooks;
+  }
 
   return (
     <div>
       <h2>books</h2>
+      { filter && <p>in genre <b>{ filter }</b></p>}
       <table>
         <tbody>
           <tr>
@@ -29,6 +42,17 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
+      {genres.map(g => (
+        <button
+          onClick={() => setFilter(g)}
+          key={g} 
+          type='button'
+        >{ g }</button>
+      ))}
+      <button
+        onClick={() => setFilter('')}
+        type='button'
+      >all genres</button>
     </div>
   );
 };
