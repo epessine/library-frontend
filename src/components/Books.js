@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLazyQuery } from '@apollo/client';
-import { ALL_BOOKS } from '../queries';
+import { useLazyQuery, useSubscription } from '@apollo/client';
+import { ALL_BOOKS, BOOK_ADDED } from '../queries';
 
 const Books = (props) => {
   const [ filter, setFilter ] = useState('');
@@ -11,6 +11,13 @@ const Books = (props) => {
   useEffect(() => {
     getAllBooks();
   },[filter]); // eslint-disable-line
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData);
+      getAllBooks();
+    }
+  });
 
   let books = [];
   if (!props.show) {

@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { ALL_AUTHORS, UPDATE_AUTHOR } from '../queries';
+import React, { useState, useEffect } from 'react';
+import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
+import { ALL_AUTHORS, UPDATE_AUTHOR, BOOK_ADDED } from '../queries';
 import useField from '../hooks/useField';
 
 const Authors = (props) => {
   const [ updateAuthor ] = useMutation(UPDATE_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }]
   });
-  const result = useQuery(ALL_AUTHORS);
+  const [getAllAuthors, authorsResult] = useLazyQuery(ALL_AUTHORS);
   const [name, setName] = useState('');
   const born = useField('text');
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData);
+      getAllAuthors();
+    }
+  });
+
+  useEffect(() => {
+    getAllAuthors();
+  }, []);
+
   if (!props.show) {
     return null;
   }
-  if (result.loading) return (<p>loading...</p>);
-  const authors = result.data.allAuthors;
+  if (authorsResult.loading || !authorsResult.data) return (<p>loading...</p>);
+  const authors = authorsResult.data.allAuthors;
   const submit = async (event) => {
     event.preventDefault();
     updateAuthor({
@@ -25,6 +37,7 @@ const Authors = (props) => {
     });
     setName('');
     born.reset();
+    getAllAuthors();
   };
 
   return (
