@@ -112,3 +112,20 @@ export const LOGIN = gql`
     }
   }
 `;
+
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      _id
+      title
+      published
+      author {
+        _id
+        name
+        born
+        bookCount
+      }
+      genres
+    }
+  }
+`;
